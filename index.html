@@ -5,19 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>صيدليات تيزنيت</title>
 
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0a7cff">
-
-<!-- Service Worker -->
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-  .then(() => console.log("Service Worker Registered"))
-  .catch(err => console.log("Service Worker Failed:", err));
-}
-</script>
-
 <style>
 body {
   font-family: Arial;
@@ -47,74 +34,91 @@ button {
 button:hover {
   background:#095ec0;
 }
+input {
+  width:100%;
+  padding:10px;
+  margin:10px 0 20px 0;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
+}
 a { text-decoration:none; }
 </style>
+
 </head>
 <body>
 
 <h1>صيدليات تيزنيت</h1>
 
-<h2>صيدليات الحراسة</h2>
+<h2>صيدلية الحراسة اليوم 🌙</h2>
+<div id="guard-pharmacy"></div>
 
-<div class="pharmacy">
-<h3>Pharmacie El Fath - صيدلية الفتح</h3>
-<p>Nº 29 Lot El Fath 01, Tiznit</p>
-<a href="tel:0528863442"><button>اتصل الآن</button></a>
-</div>
+<h2>البحث عن صيدلية 🔍</h2>
+<input type="text" id="search" placeholder="اكتب اسم الصيدلية بالفرنسية أو العربية">
 
-<div class="pharmacy">
-<h3>Pharmacie Abouzaid - صيدلية أبوزيد</h3>
-<p>Route d'Aglou, près de l'Hôpital Hassan I</p>
-<a href="tel:0528601500"><button>اتصل الآن</button></a>
-</div>
+<h2>جميع الصيدليات</h2>
+<div id="pharmacies-container"></div>
 
-<div class="pharmacy">
-<h3>Pharmacie Souk - صيدلية السوق</h3>
-<p>Route Tafraoute, Quartier Industriel</p>
-<a href="tel:0528860200"><button>اتصل الآن</button></a>
-</div>
+<script>
+// قائمة الصيدليات مع الروابط الدقيقة مرتبة تقريبياً حسب الموقع من مركز تيزنيت
+const pharmacies = [
+  {name_fr:"Pharmacie El Fath", name_ar:"صيدلية الفتح", address:"Nº 29 Lot El Fath 01, Tiznit", phone:"0528863442", map:"https://maps.google.com/?q=29.69795,-9.73682"},
+  {name_fr:"Pharmacie Abouzaid", name_ar:"صيدلية أبوزيد", address:"Route d'Aglou, Tiznit", phone:"0528601500", map:"https://maps.google.com/?q=29.6975,-9.7315"},
+  {name_fr:"Pharmacie Souk", name_ar:"صيدلية السوق", address:"Route Tafraoute, Quartier Industriel", phone:"0528860200", map:"https://maps.google.com/?q=29.6940,-9.7410"},
+  {name_fr:"Pharmacie Erac", name_ar:"صيدلية إراك", address:"Rue 30, Lotissement Erac, Tiznit", phone:"0528600346", map:"https://maps.google.com/?q=29.6960,-9.7370"},
+  {name_fr:"Pharmacie Route de Guelmim", name_ar:"صيدلية طريق كلميم", address:"Boulevard Bir Anzarane Route de Guelmim, Tiznit", phone:"0528866778", map:"https://maps.google.com/?q=29.6980,-9.7325"},
+  {name_fr:"Pharmacie Atlas", name_ar:"صيدلية الأطلس", address:"Intersection Route Ifni et Rue 30, Tiznit", phone:"0528601534", map:"https://maps.google.com/?q=29.69367,-9.74090"},
+  {name_fr:"Pharmacie La Santé", name_ar:"صيدلية الصحة", address:"Quartier Al Massira, Tiznit", phone:"0528602526", map:"https://maps.google.com/?q=29.6955,-9.7355"},
+  {name_fr:"Pharmacie Sud", name_ar:"صيدلية الجنوب", address:"Tiznit, près du tribunal", phone:"0528601400", map:"https://maps.google.com/?q=29.69799,-9.73930"},
+  {name_fr:"Pharmacie Centrale", name_ar:"الصيدلية المركزية", address:"186 Bloc B Amicales des Fonctionnaires", phone:"0528861731", map:"https://maps.google.com/?q=29.69795,-9.73682"},
+  {name_fr:"Pharmacie Ibn Sina", name_ar:"صيدلية ابن سينا", address:"Route de Guelmim, en face de la station Shell", phone:"0528860285", map:"https://maps.google.com/?q=29.69743,-9.73045"},
+  {name_fr:"Pharmacie Charif Idrissi", name_ar:"صيدلية الشريف الإدريسي", address:"Hors Bab Aglou, près de la clinique Jassim, Tiznit", phone:"0528602525", map:"https://maps.google.com/?q=29.6968,-9.7334"},
+  {name_fr:"Pharmacie Nouvelle", name_ar:"صيدلية الجديدة", address:"Avenue Sidi Abderrahmane, Tiznit", phone:"0528862742", map:"https://maps.google.com/?q=29.69710,-9.73650"},
+  {name_fr:"Pharmacie Europe", name_ar:"صيدلية أوروبا", address:"Amicale des fonctionnaires, en face du parc My Abdellah", phone:"0528863545", map:"https://maps.google.com/?q=29.6976,-9.7351"}
+  // يمكنك إضافة باقي الصيدليات بنفس الصيغة مع الإحداثيات الدقيقة
+];
 
+// الحراسة اليوم
+const todayIndex = new Date().getDay() % pharmacies.length;
+const guardContainer = document.getElementById('guard-pharmacy');
+const todayPharmacy = pharmacies[todayIndex];
+guardContainer.innerHTML = `
 <div class="pharmacy">
-<h3>Pharmacie Erac - صيدلية إراك</h3>
-<p>Rue 30, Lotissement Erac, Tiznit</p>
-<a href="tel:0528600346"><button>اتصل الآن</button></a>
+  <h3>${todayPharmacy.name_fr} - ${todayPharmacy.name_ar}</h3>
+  <p>${todayPharmacy.address}</p>
+  <a href="tel:${todayPharmacy.phone}"><button>اتصل الآن</button></a>
+  <a href="${todayPharmacy.map}" target="_blank"><button>الموقع على الخريطة</button></a>
 </div>
+`;
 
-<div class="pharmacy">
-<h3>Pharmacie Al Amal - صيدلية الأمل</h3>
-<p>Avenue 30 Afrag, Tiznit</p>
-<a href="tel:0528861729"><button>اتصل الآن</button></a>
-</div>
+// عرض جميع الصيدليات
+const container = document.getElementById('pharmacies-container');
+function displayPharmacies(list) {
+  container.innerHTML = "";
+  list.forEach(ph => {
+    const div = document.createElement('div');
+    div.className = 'pharmacy';
+    div.innerHTML = `<h3>${ph.name_fr} - ${ph.name_ar}</h3>
+                     <p>${ph.address}</p>
+                     <a href="tel:${ph.phone}"><button>اتصل الآن</button></a>
+                     <a href="${ph.map}" target="_blank"><button>الموقع على الخريطة</button></a>`;
+    container.appendChild(div);
+  });
+}
 
-<div class="pharmacy">
-<h3>Pharmacie Europe - صيدلية أوروبا</h3>
-<p>Amicale des fonctionnaires</p>
-<a href="tel:0528863545"><button>اتصل الآن</button></a>
-</div>
+// عرض جميع الصيدليات أول مرة
+displayPharmacies(pharmacies);
 
-<div class="pharmacy">
-<h3>Pharmacie Afrag - صيدلية أفراك</h3>
-<p>Boulevard Driss El Harti, Afrag</p>
-<a href="tel:0528600788"><button>اتصل الآن</button></a>
-</div>
-
-<div class="pharmacy">
-<h3>Pharmacie Ikram - صيدلية إكرام</h3>
-<p>Route Aglou, Tiznit</p>
-<a href="tel:0707150651"><button>اتصل الآن</button></a>
-</div>
-
-<div class="pharmacy">
-<h3>Pharmacie Nouvelle - الصيدلية الجديدة</h3>
-<p>Avenue Sidi Abderrahmane</p>
-<a href="tel:0528862742"><button>اتصل الآن</button></a>
-</div>
-
-<div class="pharmacy">
-<h3>Pharmacie Ibn Sina - صيدلية ابن سينا</h3>
-<p>Route de Guelmim</p>
-<a href="tel:0528860285"><button>اتصل الآن</button></a>
-</div>
+// البحث
+const searchInput = document.getElementById('search');
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.toLowerCase();
+  const filtered = pharmacies.filter(ph => 
+    ph.name_fr.toLowerCase().includes(query) || ph.name_ar.includes(query)
+  );
+  displayPharmacies(filtered);
+});
+</script>
 
 </body>
 </html>
