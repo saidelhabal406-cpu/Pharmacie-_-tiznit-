@@ -8,19 +8,7 @@
 <title>صيدليات الحراسة - تيزنيت</title>
 
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1f1f1f">
-
-<script>
-if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('sw.js')
-.then(function() {
-console.log("Service Worker Registered");
-})
-.catch(function(error) {
-console.log("Service Worker Failed:", error);
-});
-}
-</script>
+<meta name="theme-color" content="#0a7cff">
 
 <style>
 
@@ -33,13 +21,29 @@ padding:20px;
 
 h1{
 text-align:center;
+margin-bottom:30px;
 }
 
 .pharmacy{
 background:#1f1f1f;
-padding:15px;
-margin:10px 0;
-border-radius:10px;
+padding:20px;
+margin:15px 0;
+border-radius:12px;
+}
+
+button{
+padding:10px 15px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+background:#0a7cff;
+color:white;
+font-size:14px;
+cursor:pointer;
+}
+
+button:hover{
+background:#095ec0;
 }
 
 </style>
@@ -51,15 +55,40 @@ border-radius:10px;
 <h1>صيدليات الحراسة - تيزنيت</h1>
 
 <div class="pharmacy">
+
 <h2>Pharmacie El Fath</h2>
+
 <p>Lot El Fath 01 - Tiznit</p>
+
 <p>☎ 0528863442</p>
+
+<a href="tel:0528863442">
+<button>اتصل بالصيدلية</button>
+</a>
+
+<a href="https://maps.google.com">
+<button>الموقع على الخريطة</button>
+</a>
+
 </div>
 
+
 <div class="pharmacy">
+
 <h2>Pharmacie Abouzaid</h2>
+
 <p>Route Aglou - Tiznit</p>
+
 <p>☎ 0528601500</p>
+
+<a href="tel:0528601500">
+<button>اتصل بالصيدلية</button>
+</a>
+
+<a href="https://maps.google.com">
+<button>الموقع على الخريطة</button>
+</a>
+
 </div>
 
 </body>
