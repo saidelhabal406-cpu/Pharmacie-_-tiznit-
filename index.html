@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>صيدليات تيزنيت</title>
 
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
 <style>
 body {
   font-family: Arial;
@@ -12,39 +15,27 @@ body {
   color:white;
   padding:20px;
 }
-h1,h2 {
-  text-align:center;
-}
+h1,h2 { text-align:center; }
 .pharmacy {
   background:#1f1f1f;
-  padding:20px;
-  margin:15px 0;
+  padding:15px;
+  margin:10px 0;
   border-radius:12px;
 }
 button {
-  padding:10px 15px;
-  margin-top:10px;
+  padding:8px 12px;
+  margin:5px 5px 0 0;
   border:none;
   border-radius:8px;
   background:#0a7cff;
   color:white;
-  font-size:14px;
+  font-size:13px;
   cursor:pointer;
 }
-button:hover {
-  background:#095ec0;
-}
-input {
-  width:100%;
-  padding:10px;
-  margin:10px 0 20px 0;
-  border-radius:8px;
-  border:none;
-  font-size:16px;
-}
-a { text-decoration:none; }
+button:hover { background:#095ec0; }
+input { width:100%; padding:10px; margin:10px 0 20px 0; border-radius:8px; border:none; font-size:16px; }
+#map { height:450px; width:100%; margin-top:20px; border-radius:12px; }
 </style>
-
 </head>
 <body>
 
@@ -59,39 +50,67 @@ a { text-decoration:none; }
 <h2>جميع الصيدليات</h2>
 <div id="pharmacies-container"></div>
 
+<h2>الخريطة التفاعلية 🌍</h2>
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
-// قائمة الصيدليات مع الروابط الدقيقة مرتبة تقريبياً حسب الموقع من مركز تيزنيت
+// ------------------- بيانات الصيدليات -------------------
 const pharmacies = [
-  {name_fr:"Pharmacie El Fath", name_ar:"صيدلية الفتح", address:"Nº 29 Lot El Fath 01, Tiznit", phone:"0528863442", map:"https://maps.google.com/?q=29.69795,-9.73682"},
-  {name_fr:"Pharmacie Abouzaid", name_ar:"صيدلية أبوزيد", address:"Route d'Aglou, Tiznit", phone:"0528601500", map:"https://maps.google.com/?q=29.6975,-9.7315"},
-  {name_fr:"Pharmacie Souk", name_ar:"صيدلية السوق", address:"Route Tafraoute, Quartier Industriel", phone:"0528860200", map:"https://maps.google.com/?q=29.6940,-9.7410"},
-  {name_fr:"Pharmacie Erac", name_ar:"صيدلية إراك", address:"Rue 30, Lotissement Erac, Tiznit", phone:"0528600346", map:"https://maps.google.com/?q=29.6960,-9.7370"},
-  {name_fr:"Pharmacie Route de Guelmim", name_ar:"صيدلية طريق كلميم", address:"Boulevard Bir Anzarane Route de Guelmim, Tiznit", phone:"0528866778", map:"https://maps.google.com/?q=29.6980,-9.7325"},
-  {name_fr:"Pharmacie Atlas", name_ar:"صيدلية الأطلس", address:"Intersection Route Ifni et Rue 30, Tiznit", phone:"0528601534", map:"https://maps.google.com/?q=29.69367,-9.74090"},
-  {name_fr:"Pharmacie La Santé", name_ar:"صيدلية الصحة", address:"Quartier Al Massira, Tiznit", phone:"0528602526", map:"https://maps.google.com/?q=29.6955,-9.7355"},
-  {name_fr:"Pharmacie Sud", name_ar:"صيدلية الجنوب", address:"Tiznit, près du tribunal", phone:"0528601400", map:"https://maps.google.com/?q=29.69799,-9.73930"},
-  {name_fr:"Pharmacie Centrale", name_ar:"الصيدلية المركزية", address:"186 Bloc B Amicales des Fonctionnaires", phone:"0528861731", map:"https://maps.google.com/?q=29.69795,-9.73682"},
-  {name_fr:"Pharmacie Ibn Sina", name_ar:"صيدلية ابن سينا", address:"Route de Guelmim, en face de la station Shell", phone:"0528860285", map:"https://maps.google.com/?q=29.69743,-9.73045"},
-  {name_fr:"Pharmacie Charif Idrissi", name_ar:"صيدلية الشريف الإدريسي", address:"Hors Bab Aglou, près de la clinique Jassim, Tiznit", phone:"0528602525", map:"https://maps.google.com/?q=29.6968,-9.7334"},
-  {name_fr:"Pharmacie Nouvelle", name_ar:"صيدلية الجديدة", address:"Avenue Sidi Abderrahmane, Tiznit", phone:"0528862742", map:"https://maps.google.com/?q=29.69710,-9.73650"},
-  {name_fr:"Pharmacie Europe", name_ar:"صيدلية أوروبا", address:"Amicale des fonctionnaires, en face du parc My Abdellah", phone:"0528863545", map:"https://maps.google.com/?q=29.6976,-9.7351"}
-  // يمكنك إضافة باقي الصيدليات بنفس الصيغة مع الإحداثيات الدقيقة
+  {name_fr:"Pharmacie El Fath", name_ar:"صيدلية الفتح", address_fr:"Nº 29 Lot El Fath 01, Tiznit", address_ar:"أمام مسجد الفتح، تيزنيت", phone:"0528863442", lat:29.69795, lng:-9.73682},
+  {name_fr:"Pharmacie Abouzaid", name_ar:"صيدلية أبوزيد", address_fr:"Route d'Aglou, près de l'Hôpital Hassan I", address_ar:"طريق أكلو، بالقرب من مستشفى الحسن الأول", phone:"0528601500", lat:29.6975, lng:-9.7315},
+  {name_fr:"Pharmacie Souk", name_ar:"صيدلية السوق", address_fr:"Route Tafraoute, Quartier Industriel", address_ar:"طريق تفراوت، الحي الصناعي", phone:"0528860200", lat:29.6940, lng:-9.7410},
+  {name_fr:"Pharmacie Erac", name_ar:"صيدلية إراك", address_fr:"Rue 30, Lotissement Erac, Tiznit", address_ar:"شارع 30، تجزئة إراك، تيزنيت", phone:"0528600346", lat:29.6960, lng:-9.7370},
+  {name_fr:"Pharmacie Route de Guelmim", name_ar:"صيدلية طريق كلميم", address_fr:"Boulevard Bir Anzarane Route de Guelmim", address_ar:"شارع بئر أنزاران، طريق كلميم، تيزنيت", phone:"0528866778", lat:29.6980, lng:-9.7325},
+  {name_fr:"Pharmacie Al Amal", name_ar:"صيدلية الأمل", address_fr:"Avenue 30 Afrag, près du café Venezia", address_ar:"شارع 30 أفراك، بالقرب من مقهى فينيسيا", phone:"0528861729", lat:29.6965, lng:-9.7330},
+  {name_fr:"Pharmacie Assafar N Issafarne", name_ar:"صيدلية أسفار ن إسفارن", address_fr:"Avenue Hassan II N° 6, Lot Al Houria", address_ar:"شارع الحسن الثاني رقم 6، تجزئة الحرية", phone:"0528862434", lat:29.6967, lng:-9.7327},
+  {name_fr:"Pharmacie Europe", name_ar:"صيدلية أوروبا", address_fr:"Amicale des fonctionnaires, en face du parc My Abdellah", address_ar:"ودادية الموظفين، أمام حديقة مولاي عبد الله", phone:"0528863545", lat:29.6976, lng:-9.7351},
+  {name_fr:"Pharmacie des Amicales", name_ar:"صيدلية الوداديات", address_fr:"En face de la Mosquée Assouna", address_ar:"أمام مسجد السنة، تيزنيت", phone:"0528861550", lat:29.6972, lng:-9.7360},
+  {name_fr:"Pharmacie Charif Idrissi", name_ar:"صيدلية الشريف الإدريسي", address_fr:"Hors Bab Aglou, près de la clinique Jassim, Tiznit", address_ar:"خارج باب أكلو، بالقرب من عيادة جاسم، تيزنيت", phone:"0528602525", lat:29.6968, lng:-9.7334},
+  {name_fr:"Pharmacie Avenue 30", name_ar:"صيدلية شارع 30", address_fr:"Avenue 30, près du lycée Al Wahda", address_ar:"شارع 30، بالقرب من ثانوية الوحدة", phone:"0528864433", lat:29.6962, lng:-9.7345},
+  {name_fr:"Pharmacie Afrag", name_ar:"صيدلية أفراك", address_fr:"Boulevard Driss El Harti, à proximité de la mosquée Al Qods, Afrag", address_ar:"شارع دريس الحارتي، بالقرب من مسجد القدس، أفراك", phone:"0528600788", lat:29.6965, lng:-9.7335},
+  {name_fr:"Pharmacie Ben Omar", name_ar:"صيدلية بن عمر", address_fr:"30 rue Afrak, en face de la BMCE, Tiznit", address_ar:"شارع 30 أفراك، مقابل BMCE، تيزنيت", phone:"0528600814", lat:29.6968, lng:-9.7330},
+  {name_fr:"Pharmacie La Santé", name_ar:"صيدلية الصحة", address_fr:"Quartier Al Massira, entre le hammam Askti et la rue de la Délégation", address_ar:"حي المسيرة، بين حمام أسكتي وشارع الوفاق", phone:"0528602526", lat:29.6955, lng:-9.7355},
+  {name_fr:"Pharmacie Ikram", name_ar:"صيدلية إكرام", address_fr:"Immeuble Nasr, Route Aglou, Tiznit", address_ar:"عمارة نصر، طريق أكلو، تيزنيت", phone:"0707150651", lat:29.6960, lng:-9.7325},
+  {name_fr:"Pharmacie du PEUPLE", name_ar:"صيدلية الشعب", address_fr:"Près du tribunal de première instance, rue Allal ben Abdellah", address_ar:"بالقرب من المحكمة الابتدائية، شارع علال بن عبد الله، ودادية الموظفين", phone:"0528601755", lat:29.6970, lng:-9.7340},
+  {name_fr:"Pharmacie du Sud", name_ar:"صيدلية الجنوب", address_fr:"Tiznit, près de l'Amicale des fonctionnaires", address_ar:"تيزنيت، بالقرب من جمعية الموظفين", phone:"0528601400", lat:29.69799, lng:-9.73930},
+  {name_fr:"Pharmacie Nouvelle", name_ar:"صيدلية الجديدة", address_fr:"Avenue Sidi Abderrahmane", address_ar:"شارع سيدي عبد الرحمن، تيزنيت", phone:"0528862742", lat:29.69710, lng:-9.73650},
+  {name_fr:"Pharmacie Nassiri", name_ar:"صيدلية نصيري", address_fr:"N° 1, Avenue Mohammed V, Youssoufia", address_ar:"رقم 1 شارع محمد الخامس، اليوسفية", phone:"0528600721", lat:29.6935, lng:-9.7350},
+  {name_fr:"Pharmacie Bel Haj", name_ar:"صيدلية بلحاج", address_fr:"Souk Si Blaid", address_ar:"سوق سي بلعيد، تيزنيت", phone:"0528601782", lat:29.6965, lng:-9.7350},
+  {name_fr:"Pharmacie Attakwine", name_ar:"صيدلية التكوين", address_fr:"Route de Tafraoute, près du marché hebdomadaire", address_ar:"طريق تفراوت، بالقرب من السوق الأسبوعي، قرب التكوين المهني", phone:"0525255060", lat:29.6940, lng:-9.7400},
+  {name_fr:"Pharmacie Hay Nakhil", name_ar:"صيدلية حي النخيل", address_fr:"Rue Principale Nakhil, Lot Nakhil, Tiznit", address_ar:"الشارع الرئيسي النخيل، تجزئة النخيل", phone:"0528861949", lat:29.6950, lng:-9.7370},
+  {name_fr:"Pharmacie La Gare", name_ar:"صيدلية المحطة", address_fr:"Route de Tafraoute, près du marché hebdomadaire (Souk El Khmiss)", address_ar:"طريق تفراوت، بالقرب من السوق الأسبوعي (سوق الخميس)", phone:"0667134940", lat:29.6945, lng:-9.7405},
+  {name_fr:"Pharmacie Iligh", name_ar:"صيدلية إيليغ", address_fr:"Saaidia, près de l'école Yaacoubi, Tiznit", address_ar:"السعيدية، بالقرب من مدرسة يعقوبي، تجزئة المستقبل", phone:"0528860289", lat:29.6955, lng:-9.7380},
+  {name_fr:"Pharmacie Fouk El Wad", name_ar:"صيدلية فوق الواد", address_fr:"Agadir Assif direction Tarka près de l'école 18 Novembre N° 3", address_ar:"فوق الواد اتجاه تاركا، بالقرب من مدرسة 18 نونبر، شارع سيدي عبد الرحمن", phone:"0528601061", lat:29.6960, lng:-9.7360},
+  {name_fr:"Pharmacie Mokhtar Soussi", name_ar:"صيدلية المختار السوسي", address_fr:"En face de l'Hôpital Houmane El Fatouaki, Tiznit", address_ar:"أمام مستشفى حمان الفتوكي، تيزنيت", phone:"0528863565", lat:29.6958, lng:-9.7355},
+  {name_fr:"Pharmacie Narjou Chifaa", name_ar:"صيدلية الشفاء", address_fr:"Ancienne route d'Aglou, près de l'école Assfa 1", address_ar:"الطريق القديم لأكلو، بالقرب من مدرسة الصفا", phone:"0707735712", lat:29.6945, lng:-9.7395},
+  {name_fr:"Pharmacie Rahmatallah", name_ar:"صيدلية رحمة الله", address_fr:"Lotissement Nahda 2, en face de l'Institution Privée Rowad Nahda", address_ar:"تجزئة نهضة 2، أمام مؤسسة رواد النهضة الخاصة", phone:"0528866233", lat:29.6950, lng:-9.7375},
+  {name_fr:"Pharmacie Provinciale", name_ar:"الصيدلية الإقليمية", address_fr:"Route d'Agadir", address_ar:"طريق أكادير، تيزنيت", phone:"0528600775", lat:29.6940, lng:-9.7400},
+  {name_fr:"Pharmacie Almostaqbal", name_ar:"صيدلية المستقبل", address_fr:"N° 71 lotissement Al Oubour, Ain Zerka", address_ar:"تجزئة العبور، العين الزرقة، بالقرب من خزان المياه", phone:"0528602111", lat:29.6935, lng:-9.7370},
+  {name_fr:"Pharmacie l'Hôpital", name_ar:"صيدلية المستشفى", address_fr:"Route Aglou, en face de l'Hôpital Hassan I", address_ar:"طريق أكلو، أمام مستشفى الحسن الأول", phone:"0528863285", lat:29.6975, lng:-9.7315},
+  {name_fr:"Pharmacie El Atlas", name_ar:"صيدلية الأطلس", address_fr:"Intersection Route Ifni et Rue 30, N°28, Bloc E Erac", address_ar:"تقاطع طريق إفني وشارع 30، رقم 28، بلوك E، تجزئة إراك", phone:"0528601534", lat:29.69367, lng:-9.74090},
+  {name_fr:"Pharmacie sahl Souss", name_ar:"صيدلية سهل سوس", address_fr:"65, Place El Mechouare", address_ar:"ساحة المشوار، تيزنيت", phone:"0528861741", lat:29.6940, lng:-9.7365},
+  {name_fr:"Pharmacie Route Ifni", name_ar:"صيدلية طريق إفني", address_fr:"Route Ifni, près de la station-service Afriquia", address_ar:"طريق إفني، بالقرب من محطة الوقود أفريقيا", phone:"0528601296", lat:29.6938, lng:-9.7390},
+  {name_fr:"Pharmacie Centrale", name_ar:"الصيدلية المركزية", address_fr:"N° 186, Bloc B Amicales des Fonctionnaires", address_ar:"رقم 186، بلوك B، جمعية الموظفين", phone:"0528861731", lat:29.69795, lng:-9.73682},
+  {name_fr:"Pharmacie Al Mers", name_ar:"صيدلية المرس", address_fr:"Rue El Mers Edalha, en face du dispensaire, El Mers", address_ar:"شارع المرس اد الضلحى، أمام المركز الصحي، المرس", phone:"0528860728", lat:29.6950, lng:-9.7365}
 ];
 
-// الحراسة اليوم
+// ------------------- صيدلية الحراسة اليوم -------------------
 const todayIndex = new Date().getDay() % pharmacies.length;
-const guardContainer = document.getElementById('guard-pharmacy');
 const todayPharmacy = pharmacies[todayIndex];
-guardContainer.innerHTML = `
-<div class="pharmacy">
+document.getElementById('guard-pharmacy').innerHTML = `
+<div class="pharmacy" style="border:2px solid yellow;">
   <h3>${todayPharmacy.name_fr} - ${todayPharmacy.name_ar}</h3>
-  <p>${todayPharmacy.address}</p>
+  <p>${todayPharmacy.address_fr}</p>
+  <p>${todayPharmacy.address_ar}</p>
   <a href="tel:${todayPharmacy.phone}"><button>اتصل الآن</button></a>
-  <a href="${todayPharmacy.map}" target="_blank"><button>الموقع على الخريطة</button></a>
+  <a href="https://www.google.com/maps/search/?api=1&query=${todayPharmacy.lat},${todayPharmacy.lng}" target="_blank"><button>فتح على Google Maps</button></a>
 </div>
 `;
 
-// عرض جميع الصيدليات
+// ------------------- عرض الصيدليات -------------------
 const container = document.getElementById('pharmacies-container');
 function displayPharmacies(list) {
   container.innerHTML = "";
@@ -99,25 +118,46 @@ function displayPharmacies(list) {
     const div = document.createElement('div');
     div.className = 'pharmacy';
     div.innerHTML = `<h3>${ph.name_fr} - ${ph.name_ar}</h3>
-                     <p>${ph.address}</p>
+                     <p>${ph.address_fr}</p>
+                     <p>${ph.address_ar}</p>
                      <a href="tel:${ph.phone}"><button>اتصل الآن</button></a>
-                     <a href="${ph.map}" target="_blank"><button>الموقع على الخريطة</button></a>`;
+                     <a href="https://www.google.com/maps/search/?api=1&query=${ph.lat},${ph.lng}" target="_blank"><button>فتح على Google Maps</button></a>`;
     container.appendChild(div);
   });
 }
-
-// عرض جميع الصيدليات أول مرة
 displayPharmacies(pharmacies);
 
-// البحث
+// ------------------- البحث -------------------
 const searchInput = document.getElementById('search');
 searchInput.addEventListener('input', () => {
   const query = searchInput.value.toLowerCase();
-  const filtered = pharmacies.filter(ph => 
-    ph.name_fr.toLowerCase().includes(query) || ph.name_ar.includes(query)
-  );
+  const filtered = pharmacies.filter(ph => ph.name_fr.toLowerCase().includes(query) || ph.name_ar.includes(query));
   displayPharmacies(filtered);
+  updateMapMarkers(filtered);
 });
+
+// ------------------- الخريطة -------------------
+const map = L.map('map').setView([29.696, -9.735], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+
+let markers = [];
+function updateMapMarkers(list) {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+  list.forEach((ph, idx) => {
+    const icon = (idx === todayIndex) ? L.icon({iconUrl:'https://cdn-icons-png.flaticon.com/512/616/616408.png', iconSize:[35,35]}) : null;
+    const marker = L.marker([ph.lat, ph.lng], icon ? {icon:icon} : {}).addTo(map);
+    marker.bindPopup(`
+      <b>${ph.name_fr} - ${ph.name_ar}</b><br>
+      ${ph.address_ar}<br>
+      ${ph.address_fr}<br>
+      <a href="tel:${ph.phone}"><button>اتصل الآن</button></a>
+      <a href="https://www.google.com/maps/search/?api=1&query=${ph.lat},${ph.lng}" target="_blank"><button>فتح على Google Maps</button></a>
+    `);
+    markers.push(marker);
+  });
+}
+updateMapMarkers(pharmacies);
 </script>
 
 </body>
