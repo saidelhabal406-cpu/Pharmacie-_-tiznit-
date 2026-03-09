@@ -1,44 +1,25 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>صيدليات تيزنيت</title>
-
-<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4320/4320337.png">
 
 <style>
 
 body{
-font-family:Arial;
+font-family: Arial;
+background:#f2f2f2;
 margin:0;
-background:#f4f6f9;
+padding:0;
 direction:rtl;
 }
 
-/* شاشة البداية */
-
-#splash{
-position:fixed;
-width:100%;
-height:100%;
-background:#0a7cff;
-color:white;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-font-size:24px;
-z-index:10;
-}
-
 header{
-background:#0a7cff;
+background:#2e7d32;
 color:white;
-padding:18px;
 text-align:center;
+padding:15px;
 font-size:22px;
 }
 
@@ -46,62 +27,36 @@ font-size:22px;
 padding:15px;
 }
 
-button{
-width:100%;
-padding:15px;
-margin:8px 0;
-border:none;
-border-radius:10px;
-font-size:17px;
-background:#0a7cff;
-color:white;
-}
-
-button:hover{
-background:#055ec9;
-}
-
 .card{
 background:white;
 padding:15px;
-margin:10px 0;
-border-radius:12px;
-box-shadow:0 2px 8px rgba(0,0,0,0.15);
+margin-bottom:15px;
+border-radius:10px;
+box-shadow:0 2px 5px rgba(0,0,0,0.2);
 }
 
-.actions a{
-display:inline-block;
-margin:5px;
-padding:8px 12px;
+.name{
+font-size:18px;
+font-weight:bold;
+color:#2e7d32;
+}
+
+button{
+border:none;
+padding:10px;
+margin-top:10px;
 border-radius:6px;
-color:white;
-text-decoration:none;
-font-size:14px;
+cursor:pointer;
 }
 
 .call{
-background:#ff9800;
+background:#43a047;
+color:white;
 }
 
 .map{
-background:#4caf50;
-}
-
-input{
-width:100%;
-padding:12px;
-margin-top:10px;
-border-radius:8px;
-border:1px solid #ccc;
-font-size:16px;
-}
-
-iframe{
-width:100%;
-height:250px;
-border:none;
-border-radius:10px;
-margin-bottom:15px;
+background:#1e88e5;
+color:white;
 }
 
 </style>
@@ -110,158 +65,50 @@ margin-bottom:15px;
 
 <body>
 
-<div id="splash">
-
-<img src="https://cdn-icons-png.flaticon.com/512/4320/4320337.png" width="100">
-
-<p>تطبيق صيدليات تيزنيت</p>
-
-</div>
-
 <header>
-صيدليات مدينة تيزنيت
+صيدليات تيزنيت
 </header>
 
 <div class="container">
 
-<h3>مرحبا بك 👋</h3>
+<div class="card">
+<div class="name">Pharmacie El Fath</div>
+<div>29 Lot El Fath - تيزنيت</div>
 
-<p>اختر الخدمة التي تريدها</p>
+<button class="call" onclick="call('0528863442')">
+اتصال
+</button>
 
-<!-- خريطة -->
+<button class="map" onclick="map('Pharmacie El Fath Tiznit')">
+الموقع
+</button>
+</div>
 
-<iframe src="https://maps.google.com/maps?q=Tiznit&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
 
-<button onclick="night()">صيدلية الحراسة الليلية</button>
+<div class="card">
+<div class="name">Pharmacie Abouzaid</div>
+<div>Route Aglou - تيزنيت</div>
 
-<button onclick="weekend()">صيدلية المداومة نهاية الأسبوع</button>
+<button class="call" onclick="call('0528601500')">
+اتصال
+</button>
 
-<button onclick="allPharmacies()">جميع صيدليات المدينة</button>
+<button class="map" onclick="map('Pharmacie Abouzaid Tiznit')">
+الموقع
+</button>
 
-<input type="text" id="search" placeholder="البحث عن صيدلية..." onkeyup="searchPharmacy()">
-
-<div id="result"></div>
+</div>
 
 </div>
 
 <script>
 
-/* اخفاء شاشة البداية */
-
-setTimeout(function(){
-
-document.getElementById("splash").style.display="none"
-
-},2000)
-
-
-const pharmacies=[
-
-{
-name:"Pharmacie El Fath",
-address:"Lot El Fath, Tiznit",
-phone:"0528863442",
-map:"https://maps.google.com/?q=Pharmacie+El+Fath+Tiznit"
-},
-
-{
-name:"Pharmacie Abouzaid",
-address:"Route d'Aglou, Tiznit",
-phone:"0528601500",
-map:"https://maps.google.com/?q=Pharmacie+Abouzaid+Tiznit"
-},
-
-{
-name:"Pharmacie Al Amal",
-address:"Boulevard Mohammed V",
-phone:"0528862211",
-map:"https://maps.google.com/?q=Pharmacie+Al+Amal+Tiznit"
-},
-
-{
-name:"Pharmacie Tiznit",
-address:"Centre Ville",
-phone:"0528861234",
-map:"https://maps.google.com/?q=Pharmacie+Tiznit"
+function call(num){
+window.location.href="tel:"+num;
 }
 
-]
-
-
-function card(p){
-
-return `
-
-<div class="card">
-
-<h3>${p.name}</h3>
-
-<p>${p.address}</p>
-
-<div class="actions">
-
-<a class="call" href="tel:${p.phone}">اتصال</a>
-
-<a class="map" target="_blank" href="${p.map}">الموقع</a>
-
-</div>
-
-</div>
-
-`
-
-}
-
-function allPharmacies(){
-
-let html=""
-
-pharmacies.forEach(p=>{
-
-html+=card(p)
-
-})
-
-document.getElementById("result").innerHTML=html
-
-}
-
-function searchPharmacy(){
-
-let value=document.getElementById("search").value.toLowerCase()
-
-let html=""
-
-pharmacies.forEach(p=>{
-
-if(p.name.toLowerCase().includes(value)){
-
-html+=card(p)
-
-}
-
-})
-
-document.getElementById("result").innerHTML=html
-
-}
-
-function night(){
-
-let day=new Date().getDay()
-
-let p=pharmacies[day % pharmacies.length]
-
-document.getElementById("result").innerHTML="<h3>صيدلية الحراسة الليلة</h3>"+card(p)
-
-}
-
-function weekend(){
-
-let p=pharmacies[1]
-
-document.getElementById("result").innerHTML="<h3>صيدلية المداومة نهاية الأسبوع</h3>"+card(p)
-
+function map(place){
+window.open("https://www.google.com/maps/search/"+place);
 }
 
 </script>
