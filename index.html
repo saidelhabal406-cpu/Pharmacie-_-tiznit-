@@ -115,3 +115,21 @@ window.open("https://www.google.com/maps/search/"+place);
 
 </body>
 </html>
+<script src="pharmacies.js"></script>
+
+<script>
+
+const today = new Date().getDay();
+
+const gardeName = garde[today];
+
+const gardePharmacy = pharmacies.find(p => p.name === gardeName);
+
+document.getElementById("garde").innerHTML = `
+<h2>صيدلية الحراسة اليوم</h2>
+<h3>${gardePharmacy.name}</h3>
+<p>${gardePharmacy.address}</p>
+<a href="tel:${gardePharmacy.phone}">اتصل</a>
+`;
+
+</script>
