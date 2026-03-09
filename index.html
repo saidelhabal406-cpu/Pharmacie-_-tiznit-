@@ -1,94 +1,119 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صيدليات تيزنيت</title>
 
-<title>صيدليات الحراسة - تيزنيت</title>
-
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0a7cff">
 
+<!-- Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+  .then(() => console.log("Service Worker Registered"))
+  .catch(err => console.log("Service Worker Failed:", err));
+}
+</script>
+
 <style>
-
-body{
-font-family: Arial;
-background:#121212;
-color:white;
-padding:20px;
+body {
+  font-family: Arial;
+  background:#121212;
+  color:white;
+  padding:20px;
 }
-
-h1{
-text-align:center;
-margin-bottom:30px;
+h1,h2 {
+  text-align:center;
 }
-
-.pharmacy{
-background:#1f1f1f;
-padding:20px;
-margin:15px 0;
-border-radius:12px;
+.pharmacy {
+  background:#1f1f1f;
+  padding:20px;
+  margin:15px 0;
+  border-radius:12px;
 }
-
-button{
-padding:10px 15px;
-margin-top:10px;
-border:none;
-border-radius:8px;
-background:#0a7cff;
-color:white;
-font-size:14px;
-cursor:pointer;
+button {
+  padding:10px 15px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  background:#0a7cff;
+  color:white;
+  font-size:14px;
+  cursor:pointer;
 }
-
-button:hover{
-background:#095ec0;
+button:hover {
+  background:#095ec0;
 }
-
+a { text-decoration:none; }
 </style>
-
 </head>
-
 <body>
 
-<h1>صيدليات الحراسة - تيزنيت</h1>
+<h1>صيدليات تيزنيت</h1>
+
+<h2>صيدليات الحراسة</h2>
 
 <div class="pharmacy">
-
-<h2>Pharmacie El Fath</h2>
-
-<p>Lot El Fath 01 - Tiznit</p>
-
-<p>☎ 0528863442</p>
-
-<a href="tel:0528863442">
-<button>اتصل بالصيدلية</button>
-</a>
-
-<a href="https://maps.google.com">
-<button>الموقع على الخريطة</button>
-</a>
-
+<h3>Pharmacie El Fath - صيدلية الفتح</h3>
+<p>Nº 29 Lot El Fath 01, Tiznit</p>
+<a href="tel:0528863442"><button>اتصل الآن</button></a>
 </div>
 
+<div class="pharmacy">
+<h3>Pharmacie Abouzaid - صيدلية أبوزيد</h3>
+<p>Route d'Aglou, près de l'Hôpital Hassan I</p>
+<a href="tel:0528601500"><button>اتصل الآن</button></a>
+</div>
 
 <div class="pharmacy">
+<h3>Pharmacie Souk - صيدلية السوق</h3>
+<p>Route Tafraoute, Quartier Industriel</p>
+<a href="tel:0528860200"><button>اتصل الآن</button></a>
+</div>
 
-<h2>Pharmacie Abouzaid</h2>
+<div class="pharmacy">
+<h3>Pharmacie Erac - صيدلية إراك</h3>
+<p>Rue 30, Lotissement Erac, Tiznit</p>
+<a href="tel:0528600346"><button>اتصل الآن</button></a>
+</div>
 
-<p>Route Aglou - Tiznit</p>
+<div class="pharmacy">
+<h3>Pharmacie Al Amal - صيدلية الأمل</h3>
+<p>Avenue 30 Afrag, Tiznit</p>
+<a href="tel:0528861729"><button>اتصل الآن</button></a>
+</div>
 
-<p>☎ 0528601500</p>
+<div class="pharmacy">
+<h3>Pharmacie Europe - صيدلية أوروبا</h3>
+<p>Amicale des fonctionnaires</p>
+<a href="tel:0528863545"><button>اتصل الآن</button></a>
+</div>
 
-<a href="tel:0528601500">
-<button>اتصل بالصيدلية</button>
-</a>
+<div class="pharmacy">
+<h3>Pharmacie Afrag - صيدلية أفراك</h3>
+<p>Boulevard Driss El Harti, Afrag</p>
+<a href="tel:0528600788"><button>اتصل الآن</button></a>
+</div>
 
-<a href="https://maps.google.com">
-<button>الموقع على الخريطة</button>
-</a>
+<div class="pharmacy">
+<h3>Pharmacie Ikram - صيدلية إكرام</h3>
+<p>Route Aglou, Tiznit</p>
+<a href="tel:0707150651"><button>اتصل الآن</button></a>
+</div>
 
+<div class="pharmacy">
+<h3>Pharmacie Nouvelle - الصيدلية الجديدة</h3>
+<p>Avenue Sidi Abderrahmane</p>
+<a href="tel:0528862742"><button>اتصل الآن</button></a>
+</div>
+
+<div class="pharmacy">
+<h3>Pharmacie Ibn Sina - صيدلية ابن سينا</h3>
+<p>Route de Guelmim</p>
+<a href="tel:0528860285"><button>اتصل الآن</button></a>
 </div>
 
 </body>
