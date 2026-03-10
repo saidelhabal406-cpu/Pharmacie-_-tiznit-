@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صيدليات تيزنيت</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    margin:0; padding:0;
+}
+header {
+    background: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 1.5em;
+}
+#search {
+    width: 90%;
+    margin: 10px auto;
+    display: block;
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+.pharmacy {
+    background: white;
+    margin: 10px;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.pharmacy h3 {
+    margin: 0 0 5px 0;
+}
+.pharmacy p, .pharmacy a {
+    margin: 3px 0;
+    color: #333;
+}
+#garde {
+    background: #ffe0b2;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<header>صيدليات تيزنيت</header>
+
+<div id="garde"></div>
+
+<input type="text" id="search" placeholder="ابحث عن صيدلية...">
+
+<div id="pharmacies"></div>
+
+<script>
+// ======== بيانات الصيدليات ========
+const pharmacies = [
+{name:"Pharmacie El Fath",address:"Nº 29 Lot El Fath 01, Tiznit (face à la mosquée El Fath)",phone:"0528863442"},
+{name:"Pharmacie Abouzaid",address:"Route d'Aglou, près de l'Hôpital Hassan I",phone:"0528601500"},
+{name:"Pharmacie Souk",address:"Route Tafraoute, Quartier Industriel",phone:"0528860200"},
+{name:"Pharmacie Erac",address:"Rue 30, Lotissement Erac, Tiznit",phone:"0528600346"},
+{name:"Pharmacie Route de Guelmim",address:"Boulevard Bir Anzarane Route de Guelmim",phone:"0528866778"},
+{name:"Pharmacie Al Amal",address:"Avenue 30 Afrag, près du café Venezia",phone:"0528861729"},
+{name:"Pharmacie Assafar N Issafarne",address:"Avenue Hassan II N°6 Lot Al Houria",phone:"0528862434"},
+{name:"Pharmacie Europe",address:"Amicale des fonctionnaires, en face du parc My Abdellah",phone:"0528863545"},
+{name:"Pharmacie des Amicales",address:"En face de la Mosquée Assouna",phone:"0528861550"},
+{name:"Pharmacie Charif Idrissi",address:"Hors Bab Aglou, près de la clinique Jassim, Tiznit",phone:"0528602525"},
+{name:"Pharmacie Avenue 30",address:"Avenue 30 près du lycée Al Wahda",phone:"0528864433"},
+{name:"Pharmacie Afrag",address:"Boulevard Driss El Harti près de la mosquée Al Qods",phone:"0528600788"},
+{name:"Pharmacie Ben Omar",address:"Rue Afrag en face BMCE",phone:"0528600814"},
+{name:"Pharmacie La Santé",address:"Quartier Al Massira",phone:"0528602526"},
+{name:"Pharmacie Ikram",address:"Immeuble Nasr Route Aglou",phone:"0707150651"},
+{name:"Pharmacie du Peuple",address:"Près du tribunal rue Allal ben Abdellah",phone:"0528601755"},
+{name:"Pharmacie du Sud",address:"Près Amicale des fonctionnaires",phone:"0528601400"},
+{name:"Pharmacie Nouvelle",address:"Avenue Sidi Abderrahmane",phone:"0528862742"},
+{name:"Pharmacie Nassiri",address:"1 Avenue Mohammed V Youssoufia",phone:"0528600721"},
+{name:"Pharmacie Bel Haj",address:"Souk Si Blaid",phone:"0528601782"},
+{name:"Pharmacie Attakwine",address:"Route Tafraoute près formation professionnelle",phone:"0525255060"},
+{name:"Pharmacie Hay Nakhil",address:"Rue principale Nakhil",phone:"0528861949"},
+{name:"Pharmacie La Gare",address:"Route Tafraoute Souk El Khmiss",phone:"0667134940"},
+{name:"Pharmacie Iligh",address:"Lot Al Moustakbal Cité Saaidia",phone:"0528860289"},
+{name:"Pharmacie Ibn Sina",address:"Route Guelmim face station Shell",phone:"0528860285"},
+{name:"Pharmacie La Grande",address:"Avenue Mohammed V Youssoufia",phone:"0528600814"},
+{name:"Pharmacie Fouk El Wad",address:"Boulevard Sidi Abderrahmane direction Tarka",phone:"0528601061"},
+{name:"Pharmacie Mokhtar Soussi",address:"Face hôpital Houmane El Fatouaki",phone:"0528863565"},
+{name:"Pharmacie Chifaa",address:"Ancienne route Aglou près école Assfa",phone:"0707735712"},
+{name:"Pharmacie Rahmatallah",address:"Lotissement Nahda 2",phone:"0528866233"},
+{name:"Pharmacie Provinciale",address:"Route Agadir",phone:"0528600775"},
+{name:"Pharmacie Almostaqbal",address:"Lot Al Oubour Ain Zerka",phone:"0528602111"},
+{name:"Pharmacie l'Hôpital",address:"Route Aglou face hôpital Hassan I",phone:"0528863285"},
+{name:"Pharmacie El Atlas",address:"Intersection Route Ifni et Rue 30",phone:"0528601534"},
+{name:"Pharmacie Sahl Souss",address:"Place El Mechouar",phone:"0528861741"},
+{name:"Pharmacie Route Ifni",address:"Route Ifni près station Afriquia",phone:"0528601296"},
+{name:"Pharmacie Rahmat-allah",address:"Lotissement Nahda 2",phone:"0528866233"},
+{name:"Pharmacie Centrale",address:"Bloc B Amicale des fonctionnaires",phone:"0528861731"},
+{name:"Pharmacie Al Mers",address:"Rue El Mers face dispensaire",phone:"0528860728"}
+];
+
+// ======== صيدلية الحراسة ========
+const gardeSchedule = [
+"Pharmacie El Fath","Pharmacie Abouzaid","Pharmacie Souk","Pharmacie Erac",
+"Pharmacie Route de Guelmim","Pharmacie Al Amal","Pharmacie Assafar N Issafarne"
+];
+
+const today = new Date().getDay(); // 0=Sun, 6=Sat
+const gardePharmacy = pharmacies.find(p => p.name === gardeSchedule[today % gardeSchedule.length]);
+
+document.getElementById("garde").innerHTML = `
+<h2>صيدلية الحراسة اليوم 🌙</h2>
+<h3>${gardePharmacy.name}</h3>
+<p>📍 ${gardePharmacy.address}</p>
+<a href="tel:${gardePharmacy.phone}">📞 ${gardePharmacy.phone}</a>
+`;
+
+// ======== عرض كل الصيدليات ========
+const container = document.getElementById("pharmacies");
+
+function displayPharmacies(list){
+    container.innerHTML = "";
+    list.forEach(p => {
+        container.innerHTML += `
+        <div class="pharmacy">
+            <h3>${p.name}</h3>
+            <p>📍 ${p.address}</p>
+            <a href="tel:${p.phone}">📞 ${p.phone}</a>
+        </div>
+        `;
+    });
+}
+
+displayPharmacies(pharmacies);
+
+// ======== البحث ========
+document.getElementById("search").addEventListener("input", function(){
+    const query = this.value.toLowerCase();
+    const filtered = pharmacies.filter(p => 
+        p.name.toLowerCase().includes(query) || p.address.toLowerCase().includes(query)
+    );
+    displayPharmacies(filtered);
+});
+</script>
+
+</body>
+</html>
